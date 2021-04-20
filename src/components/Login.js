@@ -1,20 +1,43 @@
 import './Login.css'
 import { useHistory } from "react-router-dom";
+import Data from "../data.js";
 
-const Login = ({isUserAuthenticated, authenticate}) => {
+const Login = ({isUserAuthenticated, authenticate, user, updateUser, status, onError}) => {
 
     const history = useHistory();
     const handleSubmit = (event) => {
         event.preventDefault();
-        const data = new FormData(event.target);
+        const dataForm = new FormData(event.target);
+        console.log("dataForm", dataForm);
 
-        // fetch('/api/form-submit-url', {
-        //     method: 'POST',
-        //     body: data,
-        // });
-        authenticate();
-        history.push("/account");
+        const data = new Data();
+        data.getSecrets().then(response=> {
+            console.log("response", response);
+            const userId = data.checkLoginData(response, user);
+            if (userId) {
+                console.log("Si!");
+                authenticate();
+                history.push("/account");
+            } else {
+                console.log("error login!");
+                onError();
+            }
+        });
 
+
+
+
+    }
+
+    const usernameHandler = (event) => {
+        //this.setState({username: event.target.value});
+        console.log("updating user to", event.target.value);
+        updateUser({username: event.target.value});
+    }
+
+    const passwordHandler = (event) => {
+        //this.setState({username: event.target.value});
+        updateUser(event.target.value);
     }
 
     return (
@@ -28,15 +51,16 @@ const Login = ({isUserAuthenticated, authenticate}) => {
                     </div>
                     <div className="user-container">
                         <label>User name</label>
-                        <input required v-model="username" type="text" placeholder="enter your email"/>
+                        <input required value={user.username} type="text" onChange={usernameHandler} placeholder="enter your email"/>
                     </div>
                     <div className="password-container">
                         <label>Password</label>
-                        <input required v-model="password" type="password" placeholder="Password"/>
+                        <input required value={user.password} type="password" onChange={passwordHandler} placeholder="Password"/>
                     </div>
                     <hr/>
                     <div className="button-container">
-                        <div v-show="status==='error'" className="error">login error!</div>
+                        {status === "error"?<div className="error">login error!</div>:<></>}
+
                         <button type="submit">Login</button>
                     </div>
 

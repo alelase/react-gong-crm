@@ -10,17 +10,37 @@ function App() {
 
     const [employees, setEmployees] = useState([])
     const [isUserAuthenticated, setIsUserAuthenticated] = useState(false)
+    const [status, setStatus] = useState("")
 
-    const authenticate = () => setIsUserAuthenticated(true);
-    const deauthenticate = () => setIsUserAuthenticated(false);
+    const [user, setUser] = useState({
+        username: "jamie.denburg@denbamie.com",
+        password: "OP5!K?)@"
+    })
+
+    const authenticate = () => {setStatus("success"); setIsUserAuthenticated(true);}
+    const deauthenticate = () => {setIsUserAuthenticated(false)};
+
+    // const updateUser = (newVal) => setUsername(newVal => ({
+    //     ...newVal
+    // }))
+
+    const updateUser = ({...newVal}) => setUser({...user, ...newVal})
+
+    // const updateUser = (updatedUser) => {
+    //     //this.setState({username: event.target.value});
+    //     console.log("updating user to", event.target.value);
+    //     updateUser({username: event.target.value});
+    // }
+
+    const onError = () => setStatus("error");
 
   return (
     <div className="App">
-      <Header title='GONG CRM' isUserAuthenticated={isUserAuthenticated} deauthenticate={deauthenticate} />
+      <Header title='GONG CRM' isUserAuthenticated={isUserAuthenticated} deauthenticate={deauthenticate} user={user} />
         <BrowserRouter>
             <Switch>
                 <Route exact path="/login" >
-                    <Login isUserAuthenticated={isUserAuthenticated} authenticate={authenticate} />
+                    <Login isUserAuthenticated={isUserAuthenticated} authenticate={authenticate} user={user} updateUser={updateUser} status={status} onError={onError} />
                 </Route>
                 <Route exact path="/account">
                     {!isUserAuthenticated?<Redirect to="/login" /> :
